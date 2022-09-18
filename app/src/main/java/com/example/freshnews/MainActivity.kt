@@ -1,11 +1,14 @@
 package com.example.freshnews
 
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.browser.customtabs.CustomTabColorSchemeParams
+import androidx.browser.customtabs.CustomTabsIntent
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.freshnews.databinding.ActivityMainBinding
 import retrofit2.Call
@@ -37,10 +40,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    //Note: To launch web browser uncomment this
+    /*val intent = Intent(Intent.ACTION_VIEW)
+    intent.setDataAndType(Uri.parse(uri), "text/plain")
+    startActivity(intent)*/
     private fun onNewsClicked(uri: String) {
-        val intent = Intent(Intent.ACTION_VIEW)
-        intent.setDataAndType(Uri.parse(uri), "text/plain")
-        startActivity(intent)
+        val builder = CustomTabsIntent.Builder()
+        val defaultColors = CustomTabColorSchemeParams.Builder().setToolbarColor(ContextCompat.getColor(this, R.color.purple_700)).build()
+        builder.setDefaultColorSchemeParams(defaultColors)
+        builder.build().launchUrl(this, Uri.parse(uri))
     }
 
     private fun loadNews() {
@@ -55,7 +63,8 @@ class MainActivity : AppCompatActivity() {
 
             override fun onFailure(call: Call<Article>, t: Throwable) {
                 binding.progress.visibility = View.GONE
-                Log.d("NEWS", "Something Went Wrong")
+                Toast.makeText(this@MainActivity, getString(R.string.something_went_wrong), Toast.LENGTH_SHORT).show()
+                Log.d("NEWS", getString(R.string.something_went_wrong))
             }
         })
     }
